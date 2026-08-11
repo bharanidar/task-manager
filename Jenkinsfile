@@ -3,12 +3,6 @@ pipeline {
 
     stages {
 
-        stage('Checkout') {
-            steps {
-                git 'https://github.com/bharanidar/task-manager.git'
-            }
-        }
-
         stage('Install Dependencies') {
             steps {
                 sh '''
@@ -29,7 +23,9 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                sh 'docker build -t task-manager-backend ./backend'
+                sh '''
+                    docker compose build
+                '''
             }
         }
     }
