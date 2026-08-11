@@ -22,11 +22,12 @@ pipeline {
         }
 
         stage('Docker Build') {
-            steps {
-                sh '''
-                    docker compose build
-                '''
-            }
-        }
+    steps {
+        sh '''
+            export PATH="/usr/local/bin:$PATH"
+            docker compose build
+        '''
+    }
+}
     }
 }
