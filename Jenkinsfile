@@ -29,5 +29,21 @@ pipeline {
         '''
     }
 }
+
+stage('Docker Run & API Test') {
+    steps {
+        sh '''
+            export PATH="/usr/local/bin:$PATH"
+
+            docker compose up -d
+
+            sleep 5
+
+           curl -f http://localhost:5001/tasks
+
+            docker compose down
+        '''
+    }
+}
     }
 }
