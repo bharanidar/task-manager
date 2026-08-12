@@ -39,7 +39,7 @@ stage('Docker Run & API Test') {
 
             sleep 5
 
-           curl -f http://localhost:5001/tasks
+           curl -f http://localhost:5002/tasks
 
             docker compose down
         '''
