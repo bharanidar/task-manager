@@ -22,28 +22,34 @@ pipeline {
         }
 
         stage('Docker Build') {
-    steps {
-        sh '''
-            export PATH="/usr/local/bin:$PATH"
-            docker compose build
-        '''
-    }
-}
+            steps {
+                sh '''
+                    export PATH="/usr/local/bin:$PATH"
+                    docker compose build
+                '''
+            }
+        }
 
-stage('Docker Run & API Test') {
-    steps {
-        sh '''
-            export PATH="/usr/local/bin:$PATH"
+        stage('Code Reviewer Approval') {
+            steps {
+                input message: 'Code passed build and tests. Approve to continue?', ok: 'Approve Deployment'
+            }
+        }
 
-            docker compose up -d
+        stage('Docker Run & API Test') {
+            steps {
+                sh '''
+                    export PATH="/usr/local/bin:$PATH"
 
-            sleep 5
+                    docker compose up -d
 
-           curl -f http://localhost:5002/tasks
+                    sleep 5
 
-            docker compose down
-        '''
-    }
-}
+                    curl -f http://localhost:5002/tasks
+
+                    docker compose down
+                '''
+            }
+        }
     }
 }
