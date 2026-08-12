@@ -113,21 +113,40 @@
         padding: 15px;
         border-bottom: 1px solid #eee;
         cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
     }
 
     .task-item:last-child {
         border-bottom: none;
     }
+    .task-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.task-item button {
+    margin-left: 20px;
+    padding: 8px 14px;
+}
+
+.task-item button:disabled {
+    background: #aaa;
+    cursor: not-allowed;
+}
 
     .completed {
         text-decoration: line-through;
         color: #888;
     }
-</style>
+    </style>
 </head>
 
 <body>
-
     <div class="container">
 
         <h1>Task Manager</h1>
@@ -157,22 +176,22 @@
         <div class="team">
 
             <div class="member-card">
-                <h3>UI/UX Designer</h3>
+                <h3>UX Designer</h3>
                 <p id="uiuxCount">0 tasks</p>
             </div>
 
             <div class="member-card">
-                <h3>Developer</h3>
+                <h3>Frontend Developer</h3>
                 <p id="developerCount">0 tasks</p>
             </div>
 
             <div class="member-card">
-                <h3>Tester</h3>
+                <h3>Tester / QA</h3>
                 <p id="testerCount">0 tasks</p>
             </div>
 
             <div class="member-card">
-                <h3>DevOps Engineer</h3>
+                <h3>Backend Developer</h3>  
                 <p id="devopsCount">0 tasks</p>
             </div>
 
@@ -190,10 +209,10 @@
 
             <select id="roleInput">
                 <option value="">Select role</option>
-                <option value="UI/UX Designer">UI/UX Designer</option>
-                <option value="Developer">Developer</option>
-                <option value="Tester">Tester</option>
-                <option value="DevOps Engineer">DevOps Engineer</option>
+                <option value="UX Designer">UX Designer</option>
+                <option value="Frontend Developer">Frontend Developer</option>
+                <option value="Tester / QA">Tester / QA</option>
+                <option value="Backend Developer">Backend Developer</option>
             </select>
 
             <button onclick="createTask()">Add Task</button>
@@ -210,95 +229,103 @@
 
     </div>
     <script>
-        const API_URL = "http://127.0.0.1:5000/tasks";
+        const API_URL = "http://127.0.0.1:5001/tasks";
 
         async function loadTasks() {
-    const response = await fetch(API_URL);
-    const tasks = await response.json();
+            const response = await fetch(API_URL);
+            const tasks = await response.json();
 
-    const taskList = document.getElementById("taskList");
-    taskList.innerHTML = "";
+            const taskList = document.getElementById("taskList");
+            taskList.innerHTML = "";
 
-    // Calculate statistics
-    const totalTasks = tasks.length;
+            // Calculate statistics
+            const totalTasks = tasks.length;
 
-    const pendingTasks = tasks.filter(
-        task => task.status === "pending"
-    ).length;
+            const pendingTasks = tasks.filter(
+                task => task.status === "pending"
+            ).length;
 
-    const completedTasks = tasks.filter(
-        task => task.status === "completed"
-    ).length;
+            const completedTasks = tasks.filter(
+                task => task.status === "completed"
+            ).length;
 
-    // Count tasks for each role
-    const uiuxTasks = tasks.filter(
-        task => task.assigned_role === "UI/UX Designer"
-    ).length;
+            // Count tasks for each role
+            const uiuxTasks = tasks.filter(
+                task => task.assigned_role === "UX Designer"
+            ).length;
 
-    const developerTasks = tasks.filter(
-        task => task.assigned_role === "Developer"
-    ).length;
+            const developerTasks = tasks.filter(
+                task => task.assigned_role === "Frontend Developer"
+            ).length;
 
-    const testerTasks = tasks.filter(
-        task => task.assigned_role === "Tester"
-    ).length;
+            const testerTasks = tasks.filter(
+                task => task.assigned_role === "Tester / QA"
+            ).length;
 
-    const devopsTasks = tasks.filter(
-        task => task.assigned_role === "DevOps Engineer"
-    ).length;
+            const devopsTasks = tasks.filter(
+                task => task.assigned_role === "Backend Developer"
+            ).length;
 
-    // Update dashboard statistics
-    document.getElementById("totalTasks").textContent = totalTasks;
-    document.getElementById("pendingTasks").textContent = pendingTasks;
-    document.getElementById("completedTasks").textContent = completedTasks;
+            // Update dashboard statistics
+            document.getElementById("totalTasks").textContent = totalTasks;
+            document.getElementById("pendingTasks").textContent = pendingTasks;
+            document.getElementById("completedTasks").textContent = completedTasks;
 
-    document.getElementById("uiuxCount").textContent =
-        `${uiuxTasks} tasks`;
+            document.getElementById("uiuxCount").textContent = `${uiuxTasks} tasks`;
+            document.getElementById("developerCount").textContent = `${developerTasks} tasks`;
+            document.getElementById("testerCount").textContent = `${testerTasks} tasks`;
+            document.getElementById("devopsCount").textContent = `${devopsTasks} tasks`;
 
-    document.getElementById("developerCount").textContent =
-        `${developerTasks} tasks`;
+            // Display tasks
+            tasks.forEach(task => {
+                const li = document.createElement("li");
+                li.classList.add("task-item");
 
-    document.getElementById("testerCount").textContent =
-        `${testerTasks} tasks`;
+                const taskInfo = document.createElement("div");
+                taskInfo.style.display = "flex";
+                taskInfo.style.flexDirection = "column";
 
-    document.getElementById("devopsCount").textContent =
-        `${devopsTasks} tasks`;
+                taskInfo.innerHTML = `
+                    <strong>${task.title}</strong>
+                    <span>${task.assigned_role}</span>
+                    <small>Status: ${task.status.replace("_", " ")}</small>
+                `;
 
-    // Display tasks
-    tasks.forEach(task => {
-        const li = document.createElement("li");
+                const button = document.createElement("button");
 
-        li.classList.add("task-item");
+                if (task.status === "pending") {
+                    button.textContent = "Start Task";
+                    button.onclick = () => updateTask(task.id, task.status);
+                } else if (task.status === "in_progress") {
+                    button.textContent = "Complete Task";
+                    button.onclick = () => updateTask(task.id, task.status);
+                } else {
+                    button.textContent = "Completed ✓";
+                    button.disabled = true;
+                }
 
-        li.textContent =
-            `${task.title} - ${task.assigned_role} - ${task.status}`;
+                li.appendChild(taskInfo);
+                li.appendChild(button);
 
-        if (task.status === "completed") {
-            li.classList.add("completed");
+                if (task.status === "completed") {
+                    li.classList.add("completed");
+                }
+
+                taskList.appendChild(li);
+            });
         }
-
-        li.onclick = () => updateTask(task.id);
-
-        taskList.appendChild(li);
-    });
-}
 
         async function createTask() {
             const input = document.getElementById("taskInput");
-const roleInput = document.getElementById("roleInput");
+            const roleInput = document.getElementById("roleInput");
 
-const title = input.value.trim();
-const assignedRole = roleInput.value;
+            const title = input.value.trim();
+            const assignedRole = roleInput.value;
 
-if (!title) {
-    alert("Please enter a task");
-    return;
-}
-
-if (!assignedRole) {
-    alert("Please select a role");
-    return;
-}
+            if (!assignedRole) {
+                alert("Please select a role");
+                return;
+            }
 
             if (!title) {
                 alert("Please enter a task");
@@ -313,7 +340,7 @@ if (!assignedRole) {
                 body: JSON.stringify({
                     title: title,
                     assigned_role: assignedRole
-})
+                })
             });
 
             input.value = "";
@@ -322,21 +349,32 @@ if (!assignedRole) {
             loadTasks();
         }
 
-        async function updateTask(taskId) {
+        async function updateTask(taskId, currentStatus) {
+            let nextStatus;
+
+            if (currentStatus === "pending") {
+                nextStatus = "in_progress";
+            } else if (currentStatus === "in_progress") {
+                nextStatus = "completed";
+            } else {
+                return;
+            }
+
             await fetch(`${API_URL}/${taskId}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json"
                 },
                 body: JSON.stringify({
-                    status: "completed"
+                    status: nextStatus
                 })
             });
 
             loadTasks();
         }
 
-        loadTasks();
+        // Initial load
+        document.addEventListener('DOMContentLoaded', loadTasks);
     </script>
 
 </body>
