@@ -32,7 +32,7 @@ pipeline {
 
         stage('Code Reviewer Approval') {
             steps {
-                input message: 'Code passed build and tests. Code Reviewer approval required.', ok: 'Approve Deployment', submitter: 'Peter'
+                input message: 'Code passed build and tests. Code Reviewer approval required.', ok: 'Approve Deployment', submitter: 'peter'
             }
         }
 
